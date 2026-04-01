@@ -1,34 +1,45 @@
 import Link from "next/link";
 
 import { siteTitle } from "@/lib/site";
-import type { ProjectIndexItem } from "@/types/project";
 
-export function LeftNav({ projects }: { projects: ProjectIndexItem[] }) {
+const LINKS = [
+  { href: "/", label: "Work" },
+  { href: "/about", label: "About" },
+  { href: "/contact", label: "Contact" },
+] as const;
+
+/** Name on the top-left wall — one line, no wrap. */
+export function SiteMark() {
+  return (
+    <Link
+      href="/"
+      className="pointer-events-auto fixed left-3 top-6 z-50 hidden text-[0.625rem] font-normal uppercase leading-none tracking-[0.2em] text-neutral-900 transition-opacity hover:opacity-55 md:block"
+    >
+      <span className="whitespace-nowrap">{siteTitle}</span>
+    </Link>
+  );
+}
+
+/** Work · About · Contact — vertically centered on the left wall, rotated. */
+export function LeftNav() {
   return (
     <nav
-      className="sticky top-0 flex max-h-screen flex-col gap-10 py-10 pr-4"
+      className="pointer-events-auto fixed left-0 top-0 z-40 hidden h-svh w-9 flex-col md:flex"
       aria-label="Primary"
     >
-      <div>
-        <Link
-          href="/"
-          className="text-[0.8125rem] font-normal tracking-[0.02em] text-neutral-900 hover:text-neutral-600 motion-reduce:transition-none"
-        >
-          {siteTitle}
-        </Link>
-      </div>
-      <ul className="flex flex-col gap-2.5">
-        {projects.map((p) => (
-          <li key={p._id}>
+      <div className="flex h-full w-full items-center justify-center overflow-visible">
+        <div className="flex w-max -rotate-90 flex-row items-center gap-x-5 text-[0.625rem] uppercase tracking-[0.18em] text-neutral-500">
+          {LINKS.map((item) => (
             <Link
-              href={`/work/${p.slug}`}
-              className="text-[0.8125rem] leading-snug text-neutral-600 transition-colors hover:text-neutral-900 motion-reduce:transition-none"
+              key={item.href}
+              href={item.href}
+              className="whitespace-nowrap transition-opacity hover:text-neutral-900 hover:opacity-100"
             >
-              {p.title}
+              {item.label}
             </Link>
-          </li>
-        ))}
-      </ul>
+          ))}
+        </div>
+      </div>
     </nav>
   );
 }

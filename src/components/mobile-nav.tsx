@@ -5,9 +5,14 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { siteTitle } from "@/lib/site";
-import type { ProjectIndexItem } from "@/types/project";
 
-function MobileNavInner({ projects }: { projects: ProjectIndexItem[] }) {
+const LINKS = [
+  { href: "/", label: "Work" },
+  { href: "/about", label: "About" },
+  { href: "/contact", label: "Contact" },
+] as const;
+
+function MobileNavInner() {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -24,7 +29,7 @@ function MobileNavInner({ projects }: { projects: ProjectIndexItem[] }) {
       <header className="fixed left-0 right-0 top-0 z-40 flex items-center justify-between border-b border-neutral-200/80 bg-[var(--background)]/90 px-5 py-4 backdrop-blur-sm md:hidden">
         <Link
           href="/"
-          className="text-[0.8125rem] tracking-[0.02em] text-neutral-900"
+          className="shrink-0 whitespace-nowrap text-[0.7rem] tracking-[0.06em] text-neutral-900 sm:text-[0.8125rem] sm:tracking-[0.02em]"
         >
           {siteTitle}
         </Link>
@@ -48,13 +53,14 @@ function MobileNavInner({ projects }: { projects: ProjectIndexItem[] }) {
       >
         <nav className="h-full overflow-y-auto px-5 pb-16 pt-6" aria-label="Primary">
           <ul className="flex flex-col gap-3">
-            {projects.map((p) => (
-              <li key={p._id}>
+            {LINKS.map((item) => (
+              <li key={item.href}>
                 <Link
-                  href={`/work/${p.slug}`}
+                  href={item.href}
                   className="block text-[0.9375rem] leading-snug text-neutral-700"
+                  onClick={() => setOpen(false)}
                 >
-                  {p.title}
+                  {item.label}
                 </Link>
               </li>
             ))}
@@ -65,7 +71,7 @@ function MobileNavInner({ projects }: { projects: ProjectIndexItem[] }) {
   );
 }
 
-export function MobileNav({ projects }: { projects: ProjectIndexItem[] }) {
+export function MobileNav() {
   const pathname = usePathname();
-  return <MobileNavInner key={pathname} projects={projects} />;
+  return <MobileNavInner key={pathname} />;
 }

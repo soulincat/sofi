@@ -1,14 +1,15 @@
 import type { PortableTextBlock } from "@portabletext/types";
 
+import { GREY_PALETTES, THUMB_RATIOS } from "@/lib/grey-art";
 import { slugify } from "@/lib/slugify";
 import type {
+  ContentAudioBlock,
   ContentGreyFieldBlock,
+  ContentVideoBlock,
   ProjectContentBlock,
   ProjectDetail,
   ProjectIndexItem,
 } from "@/types/project";
-
-type SpanChild = { _type: "span"; text: string; marks: [] };
 
 const DEMO_TITLES = [
   "I'm the wound, I'm the weapon",
@@ -26,17 +27,26 @@ const DEMO_TITLES = [
   "Cloudy Series",
 ] as const;
 
-function span(text: string): SpanChild {
-  return { _type: "span", text, marks: [] };
-}
+/** Short MDN-hosted samples for demo media (replace in production). */
+const DEMO_VIDEO_SRC =
+  "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4";
+const DEMO_AUDIO_SRC =
+  "https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3";
 
-function paragraph(key: string, text: string): PortableTextBlock {
+function ptNormal(text: string, key: string): PortableTextBlock {
   return {
     _type: "block",
     _key: key,
     style: "normal",
     markDefs: [],
-    children: [span(text)] as PortableTextBlock["children"],
+    children: [
+      {
+        _type: "span",
+        _key: `${key}-s`,
+        text,
+        marks: [],
+      },
+    ],
   };
 }
 
@@ -46,7 +56,7 @@ function grey(
   ratioH: number,
   from: string,
   to: string,
-  caption?: string,
+  layout?: { widthPct?: number },
 ): ContentGreyFieldBlock {
   return {
     _type: "greyField",
@@ -55,57 +65,86 @@ function grey(
     ratioH,
     from,
     to,
-    caption,
+    ...layout,
   };
 }
 
-function greyPlaceholders(seed: number): ContentGreyFieldBlock[] {
-  const palettes = [
-    ["#ebebeb", "#c4c4c4"],
-    ["#e0e0e0", "#9e9e9e"],
-    ["#f0f0f0", "#bdbdbd"],
-    ["#ececec", "#a8a8a8"],
-    ["#efefef", "#d0d0d0"],
-    ["#e8e8e8", "#b0b0b0"],
-  ] as const;
-  const ratios: [number, number][] = [
-    [4, 5],
-    [3, 2],
-    [16, 9],
-    [1, 1],
-    [5, 4],
-    [2, 3],
-  ];
-  const blocks: ContentGreyFieldBlock[] = [];
-  for (let i = 0; i < 5; i += 1) {
-    const pi = (seed + i) % palettes.length;
-    const ri = (seed + i * 2) % ratios.length;
-    const [rw, rh] = ratios[ri]!;
-    const [from, to] = palettes[pi]!;
+function videoBlock(key: string): ContentVideoBlock {
+  return { _type: "embeddedVideo", _key: key, src: DEMO_VIDEO_SRC };
+}
+
+function audioBlock(key: string, title?: string): ContentAudioBlock {
+  return { _type: "embeddedAudio", _key: key, src: DEMO_AUDIO_SRC, title };
+}
+
+function buildContent(seed: number): ProjectContentBlock[] {
+  /** Varied widths; all blocks are centered in the column (see GreyField). */
+  const widthCycle = [100, 92, 58, 76, 88, 64, 98, 72, 84, 68];
+  const blocks: ProjectContentBlock[] = [];
+
+  blocks.push(
+    ptNormal(
+      "Notes from the process: material, light, and what stays when the frame cuts away. This piece sits between documentation and fiction.",
+      `t-${seed}-open`,
+    ),
+  );
+
+  const panelCount = 5 + (seed % 3);
+  for (let i = 0; i < panelCount; i += 1) {
+    const ri = (seed * 11 + i * 7) % THUMB_RATIOS.length;
+    const [rw, rh] = THUMB_RATIOS[ri]!;
+    const pi = (seed + i * 3) % GREY_PALETTES.length;
+    const [from, to] = GREY_PALETTES[pi]!;
+    const widthPct = widthCycle[(seed + i) % widthCycle.length]!;
+
     blocks.push(
-      grey(`g-${seed}-${i}`, rw, rh, from, to, i === 0 ? "Placeholder" : undefined),
+      grey(`g-${seed}-${i}`, rw, rh, from, to, {
+        widthPct,
+      }),
     );
+
+    if (i === 1) {
+      blocks.push(
+        ptNormal(
+          "A second passage: rhythm and repetition. The sequence is edited so silence does as much work as sound.",
+          `t-${seed}-mid`,
+        ),
+      );
+    }
+
+    if (i === 2 && seed % 2 === 0) {
+      blocks.push(videoBlock(`v-${seed}`));
+    }
+
+    if (i === 4 && seed % 3 !== 0) {
+      blocks.push(audioBlock(`a-${seed}`, "Study — ambient layer"));
+    }
   }
+
+  blocks.push(
+    ptNormal(
+      "Thanks for looking. Contact is open for commissions, prints, and installation versions of this work.",
+      `t-${seed}-close`,
+    ),
+  );
+
   return blocks;
 }
 
 function buildDetail(title: string, index: number): ProjectDetail {
   const slug = slugify(title);
   const year = 2018 + (index % 8);
-
-  const blocks: ProjectContentBlock[] = [
-    paragraph(`intro-${slug}`, "Exhibition documentation (placeholder layout)."),
-    ...greyPlaceholders(index),
-  ];
-
   return {
     _id: `demo-${slug}`,
     title,
     slug,
     year,
     date: null,
-    summary: null,
-    content: blocks,
+    summary:
+      index % 2 === 0
+        ? "Mixed media — installation and stills. Demo copy for layout."
+        : null,
+    content: buildContent(index + 1),
   };
 }
 

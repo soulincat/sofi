@@ -6,22 +6,34 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "import:tumblr": "node scripts/tumblr-import.mjs",
+    "import:tumblr-to-sanity": "node scripts/import-tumblr-to-sanity.mjs",
+    "download:site": "node scripts/download-site.mjs"
   },
   "dependencies": {
     "@portabletext/react": "^6.0.3",
+    "@sanity/icons": "^3.7.4",
+    "@sanity/image-url": "^2.1.1",
     "next": "16.2.1",
+    "next-sanity": "^12.2.1",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "sanity": "^5.18.0"
   },
   "devDependencies": {
+    "@sanity/client": "^7.20.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "cheerio": "^1.2.0",
+    "dotenv": "^17.3.1",
     "eslint": "^9",
     "eslint-config-next": "16.2.1",
+    "image-size": "^2.0.2",
     "tailwindcss": "^4",
+    "tesseract.js": "^6.0.1",
     "typescript": "^5"
   }
 }

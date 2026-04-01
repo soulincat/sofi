@@ -1,19 +1,19 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { ProjectBody } from "@/components/project-body";
-import { getProjectBySlug, getProjectsIndex } from "@/data/projects";
+import { getProjectBySlug, getProjectSlugsForStatic } from "@/data/projects";
 import { siteDescription, siteTitle } from "@/lib/site";
 import type { ProjectContentBlock } from "@/types/project";
 
-export const revalidate = 60;
-
 type Props = { params: Promise<{ slug: string }> };
 
+/** Allow slugs that appear after build (Tumblr / new Sanity posts) without 404. */
+export const dynamicParams = true;
+
 export async function generateStaticParams() {
-  const projects = await getProjectsIndex();
-  return projects.map((p) => ({ slug: p.slug }));
+  const slugs = await getProjectSlugsForStatic();
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
@@ -39,27 +39,18 @@ export default async function WorkPage(props: Props) {
   const content = project.content as ProjectContentBlock[] | null;
 
   return (
-    <article>
-      <header className="mb-12 max-w-2xl md:mb-16">
-        <p className="mb-3">
-          <Link
-            href="/"
-            className="text-[0.6875rem] uppercase tracking-[0.14em] text-neutral-400 hover:text-neutral-600"
-          >
-            Index
-          </Link>
-        </p>
-        <h1 className="text-xl font-normal tracking-[0.02em] text-neutral-900 md:text-2xl">
+    <article className="mx-auto w-full max-w-md text-center md:max-w-lg">
+      <header className="mb-16 md:mb-24">
+        <h1 className="text-[0.9375rem] font-normal leading-snug tracking-[0.04em] text-neutral-900 md:text-base md:tracking-[0.06em]">
           {project.title}
         </h1>
         {project.year != null ? (
-          <p className="mt-2 text-sm text-neutral-500">{project.year}</p>
-        ) : null}
-        {project.date ? (
-          <p className="mt-1 text-sm text-neutral-500">{project.date}</p>
+          <p className="mt-5 text-[0.65rem] tabular-nums tracking-[0.22em] text-neutral-400">
+            {project.year}
+          </p>
         ) : null}
         {project.summary ? (
-          <p className="mt-6 text-[0.9375rem] leading-relaxed text-neutral-600">
+          <p className="mx-auto mt-10 max-w-[17rem] text-[0.8125rem] leading-[1.75] text-neutral-500 md:max-w-xs">
             {project.summary}
           </p>
         ) : null}

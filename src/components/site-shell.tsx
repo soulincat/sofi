@@ -1,25 +1,31 @@
-import { LeftNav } from "@/components/left-nav";
+import { LeftNav, SiteMark } from "@/components/left-nav";
 import { MobileNav } from "@/components/mobile-nav";
-import type { ProjectIndexItem } from "@/types/project";
 
-export function SiteShell({
-  projects,
-  children,
-}: {
-  projects: ProjectIndexItem[];
-  children: React.ReactNode;
-}) {
+export function SiteShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen md:grid md:grid-cols-[minmax(0,11.5rem)_minmax(0,1fr)] md:gap-x-10 lg:grid-cols-[minmax(0,14rem)_minmax(0,1fr)] lg:gap-x-16">
-      <MobileNav projects={projects} />
-      <aside className="hidden md:block md:border-r md:border-neutral-200/60">
-        <LeftNav projects={projects} />
-      </aside>
-      <div className="min-w-0 pt-[4.25rem] md:pt-0">
-        <div className="px-5 pb-24 pt-6 md:px-0 md:pb-32 md:pt-14 md:pr-8 lg:pr-12">
+    <div className="min-h-screen">
+      <MobileNav />
+      <SiteMark />
+      <LeftNav />
+      <div className="min-w-0 pt-[3.75rem] md:pt-0 md:pl-36 lg:pl-40">
+        <div className="mx-auto max-w-[min(100%,42rem)] px-5 pb-28 pt-8 md:max-w-none md:px-0 md:pb-36 md:pt-16 md:pr-10 lg:pr-16">
           {children}
         </div>
       </div>
+
+      <footer className="pointer-events-none fixed bottom-3 right-4 z-30 md:bottom-5 md:right-6">
+        <p className="pointer-events-auto text-[0.5rem] font-normal uppercase leading-none tracking-[0.14em] text-neutral-400">
+          built by freundin{" "}
+          <a
+            href="https://soulin.co"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-neutral-400 underline decoration-neutral-300/70 underline-offset-[2px] transition-colors hover:text-neutral-600 hover:decoration-neutral-500"
+          >
+            SOULIN
+          </a>
+        </p>
+      </footer>
     </div>
   );
 }
