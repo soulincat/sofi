@@ -1,18 +1,31 @@
 import type { Metadata } from "next";
 
-import { CV_INTRO, CV_SECTIONS } from "@/data/cv";
+import { CvEditor } from "@/components/editor/cv-editor";
+import { EditLogin } from "@/components/editor/edit-login";
+import { getCvContent } from "@/data/cv-content";
+import { hasEditSession } from "@/lib/edit-auth";
 import { siteTitle } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: `CV — ${siteTitle}`,
 };
 
-export default function AboutPage() {
+type Props = { searchParams: Promise<{ edit?: string }> };
+
+export default async function AboutPage({ searchParams }: Props) {
+  const qs = await searchParams;
+  const editRequested = qs.edit === "1";
+  const editorEnabled = editRequested && (await hasEditSession());
+  const cv = getCvContent();
+
   return (
     <main
       className="mx-auto w-full max-w-md text-center md:max-w-lg"
       aria-label="Curriculum vitae"
     >
+      {editRequested && !editorEnabled ? <EditLogin /> : null}
+      {editorEnabled ? <CvEditor initial={cv} /> : null}
+
       <header className="mb-16 md:mb-24">
         <p className="text-[0.65rem] uppercase tracking-[0.22em] text-neutral-400">
           Curriculum vitae
@@ -22,14 +35,14 @@ export default function AboutPage() {
         </h1>
       </header>
 
-      {CV_INTRO.trim() ? (
+      {cv.intro.trim() ? (
         <p className="mx-auto mb-16 max-w-[17rem] text-[0.8125rem] leading-[1.75] text-neutral-500 md:mb-24 md:max-w-xs">
-          {CV_INTRO}
+          {cv.intro}
         </p>
       ) : null}
 
       <div className="flex flex-col items-center gap-16 md:gap-[5.5rem]">
-        {CV_SECTIONS.map((section) => (
+        {cv.sections.map((section) => (
           <section
             key={section.id}
             className="w-full"

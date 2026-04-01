@@ -84,7 +84,7 @@ export default async function WorkPage(props: Props) {
     });
 
   return (
-    <article className="mx-auto w-full max-w-md text-center md:max-w-lg">
+    <article className="mx-auto w-full max-w-lg text-center md:max-w-xl">
       {editRequested && !editorEnabled ? <EditLogin /> : null}
       {editorEnabled ? (
         <ProjectEditor

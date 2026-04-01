@@ -266,7 +266,7 @@ export function ProjectBody({ content }: { content: ProjectContentBlock[] | null
       {initial.length > 0 ? (
         <section
           aria-label="Statement"
-          className="w-full max-w-md text-center md:max-w-lg"
+          className="w-full max-w-lg text-center md:max-w-xl"
         >
           <PortableText value={initial} components={textComponents} />
         </section>

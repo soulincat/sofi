@@ -17,7 +17,7 @@ npm run dev
 
 - Connect the repo and deploy the **`main`** branch.
 - Set env vars from `.env.example`: `EDIT_PASSWORD`, `EDIT_SESSION_SECRET`, and GitHub repo write vars.
-- The Save action writes updated `content/projects.json` and uploaded media files under `public/uploads/**`, then commits to GitHub via API.
+- Save actions commit `content/projects.json`, `content/cv.json`, `content/contact.json`, and uploaded media under `public/uploads/**` via GitHub API.
 
 ## Edit mode (user-friendly flow)
 
@@ -25,6 +25,8 @@ npm run dev
 - Drop files to create a new project on homepage.
 - Save opens `/work/<slug>?edit=1`.
 - On project page in edit mode, update title/place/date/description, add/remove media, save.
+- CV: `/about?edit=1` — intro, sections, entries; **Save CV** commits `content/cv.json`.
+- Contact: `/contact?edit=1` — heading, optional body, Instagram URL; **Save contact** commits `content/contact.json`.
 
 ## Optional bootstrap import
 
