@@ -1,5 +1,6 @@
 import { PortableText, type PortableTextComponents } from "@portabletext/react";
 import type { PortableTextBlock } from "@portabletext/types";
+import type { ReactNode } from "react";
 
 import type {
   ContentAudioBlock,
@@ -71,6 +72,11 @@ const textComponents: PortableTextComponents = {
     strong: ({ children }) => <strong className="font-medium text-neutral-700">{children}</strong>,
     em: ({ children }) => <em>{children}</em>,
   },
+  unknownBlockStyle: ({ children }) => (
+    <p className="mx-auto mb-0 max-w-[17rem] text-[0.8125rem] leading-[1.75] tracking-[0.01em] text-neutral-500 md:max-w-xs">
+      {children}
+    </p>
+  ),
 };
 
 export function ContentRemoteImage({
@@ -170,53 +176,102 @@ function ContentAudio({ value }: { value: ContentAudioBlock }) {
   );
 }
 
+/** OCR / Sanity text runs that appear before the first image or non-text block. */
+function splitInitialPortableBlocks(content: ProjectContentBlock[]): {
+  initial: PortableTextBlock[];
+  tail: ProjectContentBlock[];
+} {
+  const initial: PortableTextBlock[] = [];
+  let i = 0;
+  while (i < content.length) {
+    const b = content[i];
+    if (
+      b &&
+      typeof b === "object" &&
+      "_type" in b &&
+      (b as { _type: string })._type === "block"
+    ) {
+      initial.push(b as PortableTextBlock);
+      i += 1;
+    } else {
+      break;
+    }
+  }
+  return { initial, tail: content.slice(i) };
+}
+
+function renderContentTail(
+  tail: ProjectContentBlock[],
+  firstImageKey: string | undefined,
+): ReactNode[] {
+  const out: ReactNode[] = [];
+  let i = 0;
+  while (i < tail.length) {
+    const b = tail[i];
+    if (!b || typeof b !== "object" || !("_type" in b)) {
+      i += 1;
+      continue;
+    }
+    const t = (b as { _type: string })._type;
+
+    if (t === "block") {
+      const group: PortableTextBlock[] = [];
+      while (
+        i < tail.length &&
+        tail[i] &&
+        typeof tail[i] === "object" &&
+        "_type" in tail[i]! &&
+        (tail[i] as { _type: string })._type === "block"
+      ) {
+        group.push(tail[i] as PortableTextBlock);
+        i += 1;
+      }
+      const gk = group[0]?._key ?? `pt-${i}`;
+      out.push(<PortableText key={gk} value={group} components={textComponents} />);
+      continue;
+    }
+
+    const key = "_key" in b && b._key ? String(b._key) : `node-${i}`;
+
+    if (t === "remoteImage") {
+      const v = b as Extract<ProjectContentBlock, { _type: "remoteImage" }>;
+      out.push(
+        <ContentRemoteImage
+          key={key}
+          value={v}
+          priority={v._key === firstImageKey}
+        />,
+      );
+    } else if (t === "greyField") {
+      out.push(<GreyField key={key} value={b as ContentGreyFieldBlock} />);
+    } else if (t === "embeddedVideo") {
+      out.push(<ContentVideo key={key} value={b as ContentVideoBlock} />);
+    } else if (t === "embeddedAudio") {
+      out.push(<ContentAudio key={key} value={b as ContentAudioBlock} />);
+    }
+
+    i += 1;
+  }
+  return out;
+}
+
 export function ProjectBody({ content }: { content: ProjectContentBlock[] | null }) {
   if (!content?.length) return null;
 
   const firstImageKey = findFirstImageKey(content);
+  const { initial, tail } = splitInitialPortableBlocks(content);
 
   return (
     <div className="flex flex-col items-center gap-16 md:gap-[5.5rem]">
-      {content.map((b, i) => {
-        if (!b || typeof b !== "object" || !("_type" in b)) return null;
-        const t = b._type;
-        const key = "_key" in b && b._key ? String(b._key) : `node-${i}`;
-
-        if (t === "block") {
-          return (
-            <PortableText
-              key={key}
-              value={[b as PortableTextBlock]}
-              components={textComponents}
-            />
-          );
-        }
-
-        if (t === "remoteImage") {
-          const v = b as Extract<ProjectContentBlock, { _type: "remoteImage" }>;
-          return (
-            <ContentRemoteImage
-              key={key}
-              value={v}
-              priority={v._key === firstImageKey}
-            />
-          );
-        }
-
-        if (t === "greyField") {
-          return <GreyField key={key} value={b as ContentGreyFieldBlock} />;
-        }
-
-        if (t === "embeddedVideo") {
-          return <ContentVideo key={key} value={b as ContentVideoBlock} />;
-        }
-
-        if (t === "embeddedAudio") {
-          return <ContentAudio key={key} value={b as ContentAudioBlock} />;
-        }
-
-        return null;
-      })}
+      {initial.length > 0 ? (
+        <section
+          aria-label="Statement"
+          className="w-full max-w-md text-center md:max-w-lg"
+        >
+          <PortableText value={initial} components={textComponents} />
+        </section>
+      ) : null}
+      {renderContentTail(tail, firstImageKey)}
     </div>
   );
 }

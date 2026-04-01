@@ -1,13 +1,22 @@
 import Link from "next/link";
 
+import { EditLogin } from "@/components/editor/edit-login";
+import { HomeEditor } from "@/components/editor/home-editor";
 import { getProjectsIndex } from "@/data/projects";
+import { hasEditSession } from "@/lib/edit-auth";
 import {
   greyThumbVisual,
   homeTileLayout,
   splitIndexIntoRows,
 } from "@/lib/grey-art";
 
-export default async function HomePage() {
+type Props = { searchParams: Promise<{ edit?: string }> };
+
+export default async function HomePage({ searchParams }: Props) {
+  const qs = await searchParams;
+  const editRequested = qs.edit === "1";
+  const editorEnabled = editRequested && (await hasEditSession());
+
   const projects = await getProjectsIndex();
   const rowSeed = projects.reduce(
     (acc, p) => (acc + p.slug.length * 131) >>> 0,
@@ -17,6 +26,8 @@ export default async function HomePage() {
 
   return (
     <div className="space-y-6 md:space-y-10" aria-label="Work">
+      {editRequested && !editorEnabled ? <EditLogin /> : null}
+      <HomeEditor enabled={editorEnabled} />
       {rows.map((row, ri) => (
         <div
           key={ri}

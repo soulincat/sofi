@@ -1,7 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import type { PortableTextBlock } from "@portabletext/types";
-import { cache } from "react";
 
 import type {
   ContentRemoteImageBlock,
@@ -41,8 +40,10 @@ function readManifestFromDisk(): SiteImportManifest | null {
   }
 }
 
-/** Cached per request in RSC — RSS download output + local files under /public/site-import */
-export const loadSiteImportManifest = cache(readManifestFromDisk);
+/** Sync read each time — avoids stale memoization; file is small. */
+export function loadSiteImportManifest(): SiteImportManifest | null {
+  return readManifestFromDisk();
+}
 
 export function siteImportToIndexItems(): ProjectIndexItem[] {
   const m = loadSiteImportManifest();

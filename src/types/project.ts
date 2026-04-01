@@ -57,6 +57,7 @@ export type ProjectDetail = {
   _id: string;
   title: string;
   slug: string;
+  place?: string | null;
   year: number | null;
   date: string | null;
   summary: string | null;
