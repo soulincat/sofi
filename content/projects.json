@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-04-01T13:14:15.197Z",
+  "generatedAt": "2026-04-01T13:14:25.107Z",
   "projects": [
     {
       "id": "i-m-the-wound-i-m-the-weapon",
@@ -24,28 +24,6 @@
           "sortOrder": 0
         },
         {
-          "id": "i-m-the-wound-i-m-the-weapon-m-1",
-          "type": "image",
-          "src": "/site-import/i-m-the-wound-i-m-the-weapon/001.jpg",
-          "width": 500,
-          "height": 320,
-          "alt": "I’m the wound, I’m the weapon",
-          "caption": null,
-          "title": null,
-          "sortOrder": 1
-        },
-        {
-          "id": "i-m-the-wound-i-m-the-weapon-m-2",
-          "type": "image",
-          "src": "/site-import/i-m-the-wound-i-m-the-weapon/002.jpg",
-          "width": 500,
-          "height": 333,
-          "alt": "I’m the wound, I’m the weapon",
-          "caption": null,
-          "title": null,
-          "sortOrder": 2
-        },
-        {
           "id": "i-m-the-wound-i-m-the-weapon-m-3",
           "type": "image",
           "src": "/site-import/i-m-the-wound-i-m-the-weapon/003.jpg",
@@ -54,7 +32,7 @@
           "alt": "I’m the wound, I’m the weapon",
           "caption": null,
           "title": null,
-          "sortOrder": 3
+          "sortOrder": 1
         },
         {
           "id": "i-m-the-wound-i-m-the-weapon-m-4",
@@ -65,7 +43,7 @@
           "alt": "I’m the wound, I’m the weapon",
           "caption": null,
           "title": null,
-          "sortOrder": 4
+          "sortOrder": 2
         },
         {
           "id": "i-m-the-wound-i-m-the-weapon-m-5",
@@ -76,7 +54,7 @@
           "alt": "I’m the wound, I’m the weapon",
           "caption": null,
           "title": null,
-          "sortOrder": 5
+          "sortOrder": 3
         },
         {
           "id": "i-m-the-wound-i-m-the-weapon-m-6",
@@ -87,7 +65,7 @@
           "alt": "I’m the wound, I’m the weapon",
           "caption": null,
           "title": null,
-          "sortOrder": 6
+          "sortOrder": 4
         },
         {
           "id": "i-m-the-wound-i-m-the-weapon-m-7",
@@ -98,7 +76,7 @@
           "alt": "I’m the wound, I’m the weapon",
           "caption": null,
           "title": null,
-          "sortOrder": 7
+          "sortOrder": 5
         },
         {
           "id": "i-m-the-wound-i-m-the-weapon-m-8",
@@ -109,7 +87,7 @@
           "alt": "I’m the wound, I’m the weapon",
           "caption": null,
           "title": null,
-          "sortOrder": 8
+          "sortOrder": 6
         },
         {
           "id": "i-m-the-wound-i-m-the-weapon-m-9",
@@ -120,7 +98,7 @@
           "alt": "I’m the wound, I’m the weapon",
           "caption": null,
           "title": null,
-          "sortOrder": 9
+          "sortOrder": 7
         }
       ]
     },
