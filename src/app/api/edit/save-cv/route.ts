@@ -35,7 +35,11 @@ export async function POST(req: Request) {
   }
 
   const json = JSON.stringify(normalized, null, 2);
-  writeFileSync(CV_PATH, json, "utf8");
+  try {
+    writeFileSync(CV_PATH, json, "utf8");
+  } catch {
+    /* Vercel/serverless: read-only FS; GitHub commit persists. */
+  }
 
   const commit = await commitFilesToGitHubOrError({
     message: "Update CV (content/cv.json)",

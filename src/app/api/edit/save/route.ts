@@ -70,7 +70,15 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "Invalid payload" }, { status: 400 });
   }
 
-  const raw = JSON.parse(readFileSync(CONTENT_PATH, "utf8"));
+  let raw: unknown;
+  try {
+    raw = JSON.parse(readFileSync(CONTENT_PATH, "utf8"));
+  } catch {
+    return NextResponse.json(
+      { ok: false, error: "Could not read content/projects.json on server" },
+      { status: 500 },
+    );
+  }
   const current = normalizeContentFile(raw);
 
   const title = body.project.title.trim();
@@ -135,7 +143,11 @@ export async function POST(req: Request) {
   current.generatedAt = new Date().toISOString();
 
   const json = JSON.stringify(current, null, 2);
-  writeFileSync(CONTENT_PATH, json, "utf8");
+  try {
+    writeFileSync(CONTENT_PATH, json, "utf8");
+  } catch {
+    /* Vercel/serverless: repo root is read-only; GitHub commit is the real persist step. */
+  }
   filesToCommit.push({
     path: "content/projects.json",
     contentBase64: Buffer.from(json, "utf8").toString("base64"),

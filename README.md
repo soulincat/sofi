@@ -31,6 +31,8 @@ Required for edit saves:
 
 If any of the `GITHUB_*` values are missing or the token cannot push to that repo, save returns an error (after deploy, the UI shows the message from the API).
 
+On **Vercel**, the serverless filesystem is **read-only** except `/tmp`. Save handlers still try to update local JSON for dev; on Vercel they skip that write and rely entirely on the GitHub API commit (then you redeploy or pull so production matches the repo).
+
 - Save actions commit `content/projects.json`, `content/cv.json`, `content/contact.json`, and uploaded media under `public/uploads/**` via GitHub API.
 
 ## Edit mode (user-friendly flow)

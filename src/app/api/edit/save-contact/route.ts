@@ -34,7 +34,11 @@ export async function POST(req: Request) {
   }
 
   const json = JSON.stringify(normalized, null, 2);
-  writeFileSync(CONTACT_PATH, json, "utf8");
+  try {
+    writeFileSync(CONTACT_PATH, json, "utf8");
+  } catch {
+    /* Vercel/serverless: read-only FS; GitHub commit persists. */
+  }
 
   const commit = await commitFilesToGitHubOrError({
     message: "Update contact (content/contact.json)",
