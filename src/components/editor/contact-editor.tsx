@@ -8,6 +8,7 @@ export function ContactEditor({ initial }: { initial: ContactFile }) {
   const [heading, setHeading] = useState(initial.heading);
   const [body, setBody] = useState(initial.body);
   const [instagramUrl, setInstagramUrl] = useState(initial.instagramUrl);
+  const [substackUrl, setSubstackUrl] = useState(initial.substackUrl);
   const [status, setStatus] = useState<string | null>(null);
 
   async function save() {
@@ -15,7 +16,7 @@ export function ContactEditor({ initial }: { initial: ContactFile }) {
     const res = await fetch("/api/edit/save-contact", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ heading, body, instagramUrl }),
+      body: JSON.stringify({ heading, body, instagramUrl, substackUrl }),
     });
     const json = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string };
     if (!res.ok || !json.ok) {
@@ -46,13 +47,22 @@ export function ContactEditor({ initial }: { initial: ContactFile }) {
           className="mt-1 w-full rounded border border-neutral-300 bg-white px-3 py-2 text-sm"
         />
       </label>
-      <label className="mb-4 block text-xs text-neutral-500">
+      <label className="mb-3 block text-xs text-neutral-500">
         Instagram profile URL
         <input
           value={instagramUrl}
           onChange={(e) => setInstagramUrl(e.target.value)}
           className="mt-1 w-full rounded border border-neutral-300 bg-white px-3 py-2 text-sm"
           placeholder="https://www.instagram.com/username"
+        />
+      </label>
+      <label className="mb-4 block text-xs text-neutral-500">
+        Substack URL (optional)
+        <input
+          value={substackUrl}
+          onChange={(e) => setSubstackUrl(e.target.value)}
+          className="mt-1 w-full rounded border border-neutral-300 bg-white px-3 py-2 text-sm"
+          placeholder="https://substack.com/@handle"
         />
       </label>
       <div className="flex items-center gap-3">

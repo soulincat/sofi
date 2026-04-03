@@ -21,5 +21,6 @@ export function getContactContent(): ContactFile {
     heading: "Contact",
     body: "",
     instagramUrl: envInstagramUrl,
+    substackUrl: "https://substack.com/@corroborovix955642",
   };
 }

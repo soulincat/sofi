@@ -8,7 +8,7 @@ import { normalizeContactFile, type ContactFile } from "@/lib/site-content-schem
 
 const CONTACT_PATH = path.join(process.cwd(), "content", "contact.json");
 
-type Body = Pick<ContactFile, "heading" | "body" | "instagramUrl">;
+type Body = Pick<ContactFile, "heading" | "body" | "instagramUrl" | "substackUrl">;
 
 export async function POST(req: Request) {
   if (!(await hasEditSession())) {
@@ -25,6 +25,7 @@ export async function POST(req: Request) {
     heading: typeof body.heading === "string" && body.heading.trim() ? body.heading.trim() : "Contact",
     body: typeof body.body === "string" ? body.body : "",
     instagramUrl: body.instagramUrl.trim(),
+    substackUrl: typeof body.substackUrl === "string" ? body.substackUrl.trim() : "",
   };
 
   const normalized = normalizeContactFile(next);

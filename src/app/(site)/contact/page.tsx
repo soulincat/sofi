@@ -38,7 +38,7 @@ export default async function ContactPage({ searchParams }: Props) {
         </p>
       ) : null}
 
-      <p>
+      <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center sm:gap-8">
         <a
           href={contact.instagramUrl}
           target="_blank"
@@ -47,7 +47,17 @@ export default async function ContactPage({ searchParams }: Props) {
         >
           Instagram
         </a>
-      </p>
+        {contact.substackUrl.trim() ? (
+          <a
+            href={contact.substackUrl.trim()}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[0.8125rem] tracking-[0.06em] text-neutral-500 underline decoration-neutral-300/80 underline-offset-[4px] transition-colors hover:text-neutral-800 hover:decoration-neutral-500"
+          >
+            Substack
+          </a>
+        ) : null}
+      </div>
     </main>
   );
 }

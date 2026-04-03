@@ -17,6 +17,8 @@ export type ContactFile = {
   heading: string;
   body: string;
   instagramUrl: string;
+  /** Optional Substack profile URL */
+  substackUrl: string;
 };
 
 export function normalizeCvFile(raw: unknown): CvFile | null {
@@ -73,5 +75,6 @@ export function normalizeContactFile(raw: unknown): ContactFile | null {
     heading: typeof o.heading === "string" && o.heading.trim() ? o.heading.trim() : "Contact",
     body: typeof o.body === "string" ? o.body : "",
     instagramUrl,
+    substackUrl: typeof o.substackUrl === "string" ? o.substackUrl.trim() : "",
   };
 }
