@@ -23,7 +23,7 @@ function findFirstImageKey(blocks: ProjectContentBlock[] | null): string | undef
 const textComponents: PortableTextComponents = {
   block: {
     normal: ({ children }) => (
-      <p className="mx-auto mb-0 max-w-[17rem] text-[0.8125rem] leading-[1.75] tracking-[0.01em] text-neutral-500 md:max-w-xs">
+      <p className="mx-auto mb-0 w-full max-w-full px-1 text-[0.8125rem] leading-[1.75] tracking-[0.01em] text-neutral-500 sm:px-0">
         {children}
       </p>
     ),
@@ -33,19 +33,19 @@ const textComponents: PortableTextComponents = {
       </h2>
     ),
     blockquote: ({ children }) => (
-      <blockquote className="mx-auto max-w-[17rem] border-0 text-[0.8125rem] leading-[1.75] text-neutral-500 md:max-w-xs">
+      <blockquote className="mx-auto w-full max-w-full border-0 px-1 text-[0.8125rem] leading-[1.75] text-neutral-500 sm:px-0">
         {children}
       </blockquote>
     ),
   },
   list: {
     bullet: ({ children }) => (
-      <ul className="mx-auto mb-0 inline-block max-w-[17rem] list-disc space-y-1 pl-4 text-left text-[0.8125rem] leading-relaxed text-neutral-500 md:max-w-xs">
+      <ul className="mx-auto mb-0 w-full max-w-full list-disc space-y-1 pl-5 text-left text-[0.8125rem] leading-relaxed text-neutral-500 sm:pl-6">
         {children}
       </ul>
     ),
     number: ({ children }) => (
-      <ol className="mx-auto mb-0 inline-block max-w-[17rem] list-decimal space-y-1 pl-4 text-left text-[0.8125rem] leading-relaxed text-neutral-500 md:max-w-xs">
+      <ol className="mx-auto mb-0 w-full max-w-full list-decimal space-y-1 pl-5 text-left text-[0.8125rem] leading-relaxed text-neutral-500 sm:pl-6">
         {children}
       </ol>
     ),
@@ -73,7 +73,7 @@ const textComponents: PortableTextComponents = {
     em: ({ children }) => <em>{children}</em>,
   },
   unknownBlockStyle: ({ children }) => (
-    <p className="mx-auto mb-0 max-w-[17rem] text-[0.8125rem] leading-[1.75] tracking-[0.01em] text-neutral-500 md:max-w-xs">
+    <p className="mx-auto mb-0 w-full max-w-full px-1 text-[0.8125rem] leading-[1.75] tracking-[0.01em] text-neutral-500 sm:px-0">
       {children}
     </p>
   ),
@@ -110,7 +110,7 @@ export function ContentRemoteImage({
         draggable={false}
       />
       {value.caption ? (
-        <figcaption className="mx-auto mt-4 max-w-[17rem] text-center text-[0.75rem] leading-relaxed text-neutral-400 md:max-w-xs">
+        <figcaption className="mx-auto mt-4 w-full max-w-full px-1 text-center text-[0.75rem] leading-relaxed text-neutral-400 sm:px-0">
           {value.caption}
         </figcaption>
       ) : null}
@@ -137,7 +137,7 @@ export function GreyField({ value }: { value: ContentGreyFieldBlock }) {
         aria-hidden
       />
       {value.caption ? (
-        <figcaption className="mx-auto mt-4 max-w-[17rem] text-center text-[0.75rem] leading-relaxed text-neutral-400 md:max-w-xs">
+        <figcaption className="mx-auto mt-4 w-full max-w-full px-1 text-center text-[0.75rem] leading-relaxed text-neutral-400 sm:px-0">
           {value.caption}
         </figcaption>
       ) : null}
@@ -165,7 +165,7 @@ function ContentVideo({ value }: { value: ContentVideoBlock }) {
 function ContentAudio({ value }: { value: ContentAudioBlock }) {
   if (!value.src) return null;
   return (
-    <figure className="mx-auto w-full max-w-[min(100%,18rem)]">
+    <figure className="mx-auto w-full max-w-full">
       {value.title ? (
         <figcaption className="mb-3 text-center text-[0.65rem] uppercase tracking-[0.18em] text-neutral-400">
           {value.title}
@@ -264,10 +264,7 @@ export function ProjectBody({ content }: { content: ProjectContentBlock[] | null
   return (
     <div className="flex flex-col items-center gap-16 md:gap-[5.5rem]">
       {initial.length > 0 ? (
-        <section
-          aria-label="Statement"
-          className="w-full max-w-lg text-center md:max-w-xl"
-        >
+        <section aria-label="Statement" className="w-full max-w-full text-center">
           <PortableText value={initial} components={textComponents} />
         </section>
       ) : null}
