@@ -3,7 +3,7 @@ import path from "node:path";
 import { NextResponse } from "next/server";
 
 import { hasEditSession } from "@/lib/edit-auth";
-import { commitFilesToGitHub } from "@/lib/github-content";
+import { commitFilesToGitHubOrError } from "@/lib/github-content";
 import { normalizeContactFile, type ContactFile } from "@/lib/site-content-schema";
 
 const CONTACT_PATH = path.join(process.cwd(), "content", "contact.json");
@@ -36,7 +36,7 @@ export async function POST(req: Request) {
   const json = JSON.stringify(normalized, null, 2);
   writeFileSync(CONTACT_PATH, json, "utf8");
 
-  const commit = await commitFilesToGitHub({
+  const commit = await commitFilesToGitHubOrError({
     message: "Update contact (content/contact.json)",
     files: [
       {
@@ -45,6 +45,10 @@ export async function POST(req: Request) {
       },
     ],
   });
+
+  if (!commit.ok) {
+    return NextResponse.json({ ok: false, error: commit.error }, { status: 502 });
+  }
 
   return NextResponse.json({ ok: true, commitSha: commit.commitSha });
 }

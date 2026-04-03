@@ -96,3 +96,17 @@ export async function commitFilesToGitHub(params: {
 
   return { commitSha: commit.sha };
 }
+
+/** Same as commitFilesToGitHub but never throws — use in API routes so clients see the real error. */
+export async function commitFilesToGitHubOrError(params: {
+  message: string;
+  files: Array<{ path: string; contentBase64: string }>;
+}): Promise<{ ok: true; commitSha: string } | { ok: false; error: string }> {
+  try {
+    const { commitSha } = await commitFilesToGitHub(params);
+    return { ok: true, commitSha };
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    return { ok: false, error: msg.slice(0, 800) };
+  }
+}

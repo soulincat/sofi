@@ -16,7 +16,21 @@ npm run dev
 ## Deploy (e.g. Vercel)
 
 - Connect the repo and deploy the **`main`** branch.
-- Set env vars from `.env.example`: `EDIT_PASSWORD`, `EDIT_SESSION_SECRET`, and GitHub repo write vars.
+- **Saving from the site only works if GitHub env vars are set on Vercel** (saves push commits via the GitHub API; the live site filesystem is not persistent).
+
+Required for edit saves:
+
+| Variable | Purpose |
+|----------|---------|
+| `EDIT_PASSWORD` | Unlock edit mode |
+| `EDIT_SESSION_SECRET` | Long random string; signs the edit-session cookie |
+| `GITHUB_TOKEN` | PAT with **repo** contents write (classic: `repo` scope; fine-grained: **Contents: Read and write** on this repo) |
+| `GITHUB_OWNER` | Account or org that owns the repo (e.g. `soulincat`) |
+| `GITHUB_REPO` | Repo name only (e.g. `sofi`) |
+| `GITHUB_BRANCH` | Optional; default `main` — must match the branch Vercel deploys |
+
+If any of the `GITHUB_*` values are missing or the token cannot push to that repo, save returns an error (after deploy, the UI shows the message from the API).
+
 - Save actions commit `content/projects.json`, `content/cv.json`, `content/contact.json`, and uploaded media under `public/uploads/**` via GitHub API.
 
 ## Edit mode (user-friendly flow)

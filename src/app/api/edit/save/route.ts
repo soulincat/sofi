@@ -3,7 +3,7 @@ import path from "node:path";
 import { NextResponse } from "next/server";
 
 import { hasEditSession } from "@/lib/edit-auth";
-import { commitFilesToGitHub } from "@/lib/github-content";
+import { commitFilesToGitHubOrError } from "@/lib/github-content";
 import { normalizeContentFile, type ContentMediaItem, type ContentProject } from "@/lib/content-schema";
 import { slugify } from "@/lib/slugify";
 
@@ -141,10 +141,14 @@ export async function POST(req: Request) {
     contentBase64: Buffer.from(json, "utf8").toString("base64"),
   });
 
-  const commit = await commitFilesToGitHub({
+  const commit = await commitFilesToGitHubOrError({
     message: `Update project: ${project.title}`,
     files: filesToCommit,
   });
+
+  if (!commit.ok) {
+    return NextResponse.json({ ok: false, error: commit.error }, { status: 502 });
+  }
 
   return NextResponse.json({
     ok: true,
