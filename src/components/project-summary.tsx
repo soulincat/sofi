@@ -18,7 +18,9 @@ export function CommaLineBreaks({
 }) {
   const parts = splitSpecSegments(text);
   if (parts.length === 0) return null;
-  return <p className={className}>{parts.join(", ")}</p>;
+  return (
+    <p className={`min-w-0 max-w-full break-words ${className ?? ""}`}>{parts.join(", ")}</p>
+  );
 }
 
 /** First block: one line of spec (joined). Body: pre-wrap paragraphs, left-aligned. */
@@ -31,12 +33,15 @@ export function ProjectSummary({ text }: { text: string }) {
   const specOneLine = specParts.join(", ");
 
   return (
-    <div className="mt-10 w-full space-y-6 text-[0.75rem] leading-relaxed text-neutral-500">
+    <div className="mt-10 w-full min-w-0 max-w-full space-y-6 text-[0.75rem] leading-relaxed text-neutral-500">
       {specOneLine ? (
-        <p className="w-full text-left font-normal">{specOneLine}</p>
+        <p className="w-full min-w-0 max-w-full break-words text-left font-normal">{specOneLine}</p>
       ) : null}
       {rest.map((block, i) => (
-        <p key={i} className="w-full whitespace-pre-wrap text-left">
+        <p
+          key={i}
+          className="w-full min-w-0 max-w-full whitespace-pre-wrap break-words text-left"
+        >
           {block}
         </p>
       ))}

@@ -1,7 +1,5 @@
 import { PortableText, type PortableTextComponents } from "@portabletext/react";
 import type { PortableTextBlock } from "@portabletext/types";
-import type { ReactNode } from "react";
-
 import type {
   ContentAudioBlock,
   ContentGreyFieldBlock,
@@ -9,28 +7,57 @@ import type {
   ProjectContentBlock,
 } from "@/types/project";
 
-/** Left-aligned body copy; wide enough for long spec lines (still narrower than media). */
+/** Same width for header spec line and body copy (no extra px — avoids mismatch with paragraphs). */
 export const projectDetailTextColumnClass =
-  "mx-auto w-full max-w-2xl md:max-w-3xl px-1 text-left sm:px-0";
+  "mx-auto box-border w-full min-w-0 max-w-2xl text-left md:max-w-3xl";
 
 const projectTextWrap = projectDetailTextColumnClass;
 
 /** Inner text blocks fill the text column wrapper (same width as header spec line). */
 const textBlockClass =
-  "w-full text-[0.75rem] leading-[1.75] tracking-[0.01em] text-neutral-500";
+  "w-full min-w-0 max-w-full break-words text-[0.75rem] leading-[1.75] tracking-[0.01em] text-neutral-500";
 
 /** Wider than text; capped below screen width (no viewport bleed). */
 const projectMediaWrap = "mx-auto w-full min-w-0 max-w-3xl md:max-w-4xl";
 
-function findFirstImageKey(blocks: ProjectContentBlock[] | null): string | undefined {
-  if (!blocks) return undefined;
-  for (const b of blocks) {
-    if (!b || typeof b !== "object" || !("_type" in b)) continue;
-    if ((b as { _type: string })._type === "remoteImage") {
-      return (b as { _key: string })._key;
-    }
+function isPortableTextBlock(b: ProjectContentBlock): b is PortableTextBlock {
+  return (
+    !!b &&
+    typeof b === "object" &&
+    "_type" in b &&
+    (b as { _type: string })._type === "block"
+  );
+}
+
+function isMediaBlock(b: ProjectContentBlock): boolean {
+  const t = (b as { _type?: string })._type;
+  return (
+    t === "remoteImage" ||
+    t === "embeddedVideo" ||
+    t === "embeddedAudio" ||
+    t === "greyField"
+  );
+}
+
+/** File-backed content is […intro blocks, …media]. Reorder to: first media, all text, rest of media. */
+function partitionContent(content: ProjectContentBlock[]): {
+  blocks: PortableTextBlock[];
+  media: ProjectContentBlock[];
+} {
+  const blocks: PortableTextBlock[] = [];
+  const media: ProjectContentBlock[] = [];
+  for (const item of content) {
+    if (isPortableTextBlock(item)) blocks.push(item);
+    else if (isMediaBlock(item)) media.push(item);
   }
-  return undefined;
+  return { blocks, media };
+}
+
+function mediaItemKey(item: ProjectContentBlock, idx: number): string {
+  if (item && typeof item === "object" && "_key" in item && (item as { _key?: string })._key) {
+    return String((item as { _key: string })._key);
+  }
+  return `media-${idx}`;
 }
 
 const textComponents: PortableTextComponents = {
@@ -49,12 +76,12 @@ const textComponents: PortableTextComponents = {
   },
   list: {
     bullet: ({ children }) => (
-      <ul className="mb-0 w-full list-disc space-y-1 pl-5 text-left text-[0.75rem] leading-relaxed text-neutral-500 sm:pl-6">
+      <ul className="mb-0 w-full min-w-0 max-w-full list-disc space-y-1 break-words pl-5 text-left text-[0.75rem] leading-relaxed text-neutral-500 sm:pl-6">
         {children}
       </ul>
     ),
     number: ({ children }) => (
-      <ol className="mb-0 w-full list-decimal space-y-1 pl-5 text-left text-[0.75rem] leading-relaxed text-neutral-500 sm:pl-6">
+      <ol className="mb-0 w-full min-w-0 max-w-full list-decimal space-y-1 break-words pl-5 text-left text-[0.75rem] leading-relaxed text-neutral-500 sm:pl-6">
         {children}
       </ol>
     ),
@@ -188,103 +215,65 @@ function ContentAudio({ value }: { value: ContentAudioBlock }) {
   );
 }
 
-/** OCR / Sanity text runs that appear before the first image or non-text block. */
-function splitInitialPortableBlocks(content: ProjectContentBlock[]): {
-  initial: PortableTextBlock[];
-  tail: ProjectContentBlock[];
-} {
-  const initial: PortableTextBlock[] = [];
-  let i = 0;
-  while (i < content.length) {
-    const b = content[i];
-    if (
-      b &&
-      typeof b === "object" &&
-      "_type" in b &&
-      (b as { _type: string })._type === "block"
-    ) {
-      initial.push(b as PortableTextBlock);
-      i += 1;
-    } else {
-      break;
-    }
+function MediaBlock({
+  item,
+  imagePriority,
+}: {
+  item: ProjectContentBlock;
+  imagePriority: boolean;
+}) {
+  const t = (item as { _type: string })._type;
+
+  if (t === "remoteImage") {
+    return (
+      <ContentRemoteImage
+        value={item as Extract<ProjectContentBlock, { _type: "remoteImage" }>}
+        priority={imagePriority}
+      />
+    );
   }
-  return { initial, tail: content.slice(i) };
-}
-
-function renderContentTail(
-  tail: ProjectContentBlock[],
-  firstImageKey: string | undefined,
-): ReactNode[] {
-  const out: ReactNode[] = [];
-  let i = 0;
-  while (i < tail.length) {
-    const b = tail[i];
-    if (!b || typeof b !== "object" || !("_type" in b)) {
-      i += 1;
-      continue;
-    }
-    const t = (b as { _type: string })._type;
-
-    if (t === "block") {
-      const group: PortableTextBlock[] = [];
-      while (
-        i < tail.length &&
-        tail[i] &&
-        typeof tail[i] === "object" &&
-        "_type" in tail[i]! &&
-        (tail[i] as { _type: string })._type === "block"
-      ) {
-        group.push(tail[i] as PortableTextBlock);
-        i += 1;
-      }
-      const gk = group[0]?._key ?? `pt-${i}`;
-      out.push(
-        <div key={gk} className={`${projectDetailTextColumnClass} w-full`}>
-          <PortableText value={group} components={textComponents} />
-        </div>,
-      );
-      continue;
-    }
-
-    const key = "_key" in b && b._key ? String(b._key) : `node-${i}`;
-
-    if (t === "remoteImage") {
-      const v = b as Extract<ProjectContentBlock, { _type: "remoteImage" }>;
-      out.push(
-        <ContentRemoteImage
-          key={key}
-          value={v}
-          priority={v._key === firstImageKey}
-        />,
-      );
-    } else if (t === "greyField") {
-      out.push(<GreyField key={key} value={b as ContentGreyFieldBlock} />);
-    } else if (t === "embeddedVideo") {
-      out.push(<ContentVideo key={key} value={b as ContentVideoBlock} />);
-    } else if (t === "embeddedAudio") {
-      out.push(<ContentAudio key={key} value={b as ContentAudioBlock} />);
-    }
-
-    i += 1;
+  if (t === "greyField") {
+    return <GreyField value={item as ContentGreyFieldBlock} />;
   }
-  return out;
+  if (t === "embeddedVideo") {
+    return <ContentVideo value={item as ContentVideoBlock} />;
+  }
+  if (t === "embeddedAudio") {
+    return <ContentAudio value={item as ContentAudioBlock} />;
+  }
+  return null;
 }
 
 export function ProjectBody({ content }: { content: ProjectContentBlock[] | null }) {
   if (!content?.length) return null;
 
-  const firstImageKey = findFirstImageKey(content);
-  const { initial, tail } = splitInitialPortableBlocks(content);
+  const { blocks, media } = partitionContent(content);
+  const firstMedia = media[0];
+  const restMedia = media.slice(1);
+  const firstIsRemote =
+    firstMedia && (firstMedia as { _type: string })._type === "remoteImage";
 
   return (
     <div className="flex w-full flex-col gap-16 md:gap-[5.5rem]">
-      {initial.length > 0 ? (
-        <section aria-label="Statement" className={`${projectDetailTextColumnClass} w-full`}>
-          <PortableText value={initial} components={textComponents} />
+      {firstMedia ? (
+        <MediaBlock
+          key={mediaItemKey(firstMedia, 0)}
+          item={firstMedia}
+          imagePriority={Boolean(firstIsRemote)}
+        />
+      ) : null}
+      {blocks.length > 0 ? (
+        <section aria-label="Project text" className={`${projectDetailTextColumnClass} w-full`}>
+          <PortableText value={blocks} components={textComponents} />
         </section>
       ) : null}
-      {renderContentTail(tail, firstImageKey)}
+      {restMedia.map((item, idx) => (
+        <MediaBlock
+          key={mediaItemKey(item, idx + 1)}
+          item={item}
+          imagePriority={false}
+        />
+      ))}
     </div>
   );
 }
