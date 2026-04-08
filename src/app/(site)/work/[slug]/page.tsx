@@ -120,6 +120,17 @@ export default async function WorkPage(props: Props) {
           }}
         />
       ) : null}
+
+      {firstMedia ? (
+        <div className="mb-16 md:mb-24">
+          <MediaBlock
+            key={mediaItemKey(firstMedia, 0)}
+            item={firstMedia}
+            imagePriority={Boolean(firstIsRemote)}
+          />
+        </div>
+      ) : null}
+
       <header className="mb-16 md:mb-24">
         <div className={projectDetailTextColumnClass}>
           <h1 className="text-left text-lg font-normal leading-snug tracking-[0.04em] text-neutral-900 md:text-xl md:tracking-[0.05em] lg:text-2xl lg:tracking-[0.06em]">
@@ -138,18 +149,6 @@ export default async function WorkPage(props: Props) {
           ) : null}
         </div>
       </header>
-
-      {firstMedia ? (
-        <div
-          className={hasAnyBodyCopy || hasMoreGallery ? "mb-16 md:mb-24" : undefined}
-        >
-          <MediaBlock
-            key={mediaItemKey(firstMedia, 0)}
-            item={firstMedia}
-            imagePriority={Boolean(firstIsRemote)}
-          />
-        </div>
-      ) : null}
 
       {hasAnyBodyCopy ? (
         <div
