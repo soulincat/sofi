@@ -59,7 +59,8 @@ export default async function WorkPage(props: Props) {
   const restMedia = media.slice(1);
   const firstIsRemote =
     firstMedia && (firstMedia as { _type: string })._type === "remoteImage";
-  const hasTextAfterHero = restParagraphs.length > 0 || blocks.length > 0;
+  const hasAnyBodyCopy =
+    Boolean(specLine) || restParagraphs.length > 0 || blocks.length > 0;
   const hasMoreGallery = restMedia.length > 0;
 
   const editorMedia = (content ?? [])
@@ -135,17 +136,12 @@ export default async function WorkPage(props: Props) {
               {project.year}
             </p>
           ) : null}
-          {specLine ? (
-            <p className="mt-10 w-full min-w-0 max-w-full break-words text-left text-[0.75rem] leading-relaxed text-neutral-500">
-              {specLine}
-            </p>
-          ) : null}
         </div>
       </header>
 
       {firstMedia ? (
         <div
-          className={hasTextAfterHero || hasMoreGallery ? "mb-16 md:mb-24" : undefined}
+          className={hasAnyBodyCopy || hasMoreGallery ? "mb-16 md:mb-24" : undefined}
         >
           <MediaBlock
             key={mediaItemKey(firstMedia, 0)}
@@ -155,11 +151,16 @@ export default async function WorkPage(props: Props) {
         </div>
       ) : null}
 
-      {hasTextAfterHero ? (
+      {hasAnyBodyCopy ? (
         <div
           className={`${projectDetailTextColumnClass} mb-16 space-y-6 text-[0.75rem] leading-relaxed text-neutral-500 md:mb-24`}
           aria-label="Project description"
         >
+          {specLine ? (
+            <p className="w-full min-w-0 max-w-full break-words text-left font-normal first:mt-0">
+              {specLine}
+            </p>
+          ) : null}
           {restParagraphs.map((block, i) => (
             <p
               key={i}
