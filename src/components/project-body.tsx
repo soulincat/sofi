@@ -9,14 +9,14 @@ import type {
   ProjectContentBlock,
 } from "@/types/project";
 
-/** Narrower than media; left-aligned body copy. */
+/** Left-aligned body copy; wide enough for long spec lines (still narrower than media). */
 export const projectDetailTextColumnClass =
-  "mx-auto w-full max-w-lg md:max-w-xl px-1 text-left sm:px-0";
+  "mx-auto w-full max-w-2xl md:max-w-3xl px-1 text-left sm:px-0";
 
 const projectTextWrap = projectDetailTextColumnClass;
 
 /** Wider than text; capped below screen width (no viewport bleed). */
-const projectMediaWrap = "mx-auto w-full min-w-0 max-w-2xl md:max-w-3xl";
+const projectMediaWrap = "mx-auto w-full min-w-0 max-w-3xl md:max-w-4xl";
 
 function findFirstImageKey(blocks: ProjectContentBlock[] | null): string | undefined {
   if (!blocks) return undefined;
