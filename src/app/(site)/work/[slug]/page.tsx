@@ -85,7 +85,7 @@ export default async function WorkPage(props: Props) {
     });
 
   return (
-    <article className="w-full max-w-none text-center">
+    <article className="w-full max-w-none text-left">
       {editRequested && !editorEnabled ? <EditLogin /> : null}
       {editorEnabled ? (
         <ProjectEditor
@@ -103,17 +103,17 @@ export default async function WorkPage(props: Props) {
       ) : null}
       <header className="mb-16 md:mb-24">
         <div className={projectDetailTextColumnClass}>
-          <h1 className="text-lg font-normal leading-snug tracking-[0.04em] text-neutral-900 md:text-xl md:tracking-[0.05em] lg:text-2xl lg:tracking-[0.06em]">
+          <h1 className="text-left text-lg font-normal leading-snug tracking-[0.04em] text-neutral-900 md:text-xl md:tracking-[0.05em] lg:text-2xl lg:tracking-[0.06em]">
             {project.title}
           </h1>
           {project.place ? (
             <CommaLineBreaks
               text={project.place}
-              className="mt-4 text-[0.62rem] uppercase tracking-[0.18em] text-neutral-400"
+              className="mt-4 text-left text-[0.62rem] uppercase tracking-[0.18em] text-neutral-400"
             />
           ) : null}
           {project.year != null ? (
-            <p className="mt-5 text-[0.65rem] tabular-nums tracking-[0.22em] text-neutral-400">
+            <p className="mt-5 text-left text-[0.65rem] tabular-nums tracking-[0.22em] text-neutral-400">
               {project.year}
             </p>
           ) : null}

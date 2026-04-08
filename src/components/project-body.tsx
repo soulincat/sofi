@@ -9,22 +9,14 @@ import type {
   ProjectContentBlock,
 } from "@/types/project";
 
-/** Narrow text column (body + captions). */
+/** Narrower than media; left-aligned body copy. */
 export const projectDetailTextColumnClass =
-  "mx-auto w-full max-w-lg md:max-w-xl px-1 sm:px-0";
+  "mx-auto w-full max-w-lg md:max-w-xl px-1 text-left sm:px-0";
 
 const projectTextWrap = projectDetailTextColumnClass;
 
-/** Full-bleed frame so media can exceed text width and use most of the viewport. */
-function ProjectMediaFrame({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2">
-      <div className="mx-auto w-full max-w-[min(96vw,90rem)] px-1 sm:px-2 md:px-8">
-        {children}
-      </div>
-    </div>
-  );
-}
+/** Wider than text; capped below screen width (no viewport bleed). */
+const projectMediaWrap = "mx-auto w-full min-w-0 max-w-2xl md:max-w-3xl";
 
 function findFirstImageKey(blocks: ProjectContentBlock[] | null): string | undefined {
   if (!blocks) return undefined;
@@ -41,21 +33,21 @@ const textComponents: PortableTextComponents = {
   block: {
     normal: ({ children }) => (
       <p
-        className={`mb-0 text-[0.8125rem] leading-[1.75] tracking-[0.01em] text-neutral-500 ${projectTextWrap}`}
+        className={`mb-0 text-[0.75rem] leading-[1.75] tracking-[0.01em] text-neutral-500 ${projectTextWrap}`}
       >
         {children}
       </p>
     ),
     h2: ({ children }) => (
       <h2
-        className={`mb-0 mt-0 text-[0.65rem] font-normal uppercase tracking-[0.2em] text-neutral-400 first:mt-0 ${projectTextWrap}`}
+        className={`mb-0 mt-0 text-left text-[0.65rem] font-normal uppercase tracking-[0.2em] text-neutral-400 first:mt-0 ${projectTextWrap}`}
       >
         {children}
       </h2>
     ),
     blockquote: ({ children }) => (
       <blockquote
-        className={`border-0 text-[0.8125rem] leading-[1.75] text-neutral-500 ${projectTextWrap}`}
+        className={`border-0 text-[0.75rem] leading-[1.75] text-neutral-500 ${projectTextWrap}`}
       >
         {children}
       </blockquote>
@@ -64,14 +56,14 @@ const textComponents: PortableTextComponents = {
   list: {
     bullet: ({ children }) => (
       <ul
-        className={`mb-0 list-disc space-y-1 pl-5 text-left text-[0.8125rem] leading-relaxed text-neutral-500 sm:pl-6 ${projectTextWrap}`}
+        className={`mb-0 list-disc space-y-1 pl-5 text-left text-[0.75rem] leading-relaxed text-neutral-500 sm:pl-6 ${projectTextWrap}`}
       >
         {children}
       </ul>
     ),
     number: ({ children }) => (
       <ol
-        className={`mb-0 list-decimal space-y-1 pl-5 text-left text-[0.8125rem] leading-relaxed text-neutral-500 sm:pl-6 ${projectTextWrap}`}
+        className={`mb-0 list-decimal space-y-1 pl-5 text-left text-[0.75rem] leading-relaxed text-neutral-500 sm:pl-6 ${projectTextWrap}`}
       >
         {children}
       </ol>
@@ -101,7 +93,7 @@ const textComponents: PortableTextComponents = {
   },
   unknownBlockStyle: ({ children }) => (
     <p
-      className={`mb-0 text-[0.8125rem] leading-[1.75] tracking-[0.01em] text-neutral-500 ${projectTextWrap}`}
+      className={`mb-0 text-[0.75rem] leading-[1.75] tracking-[0.01em] text-neutral-500 ${projectTextWrap}`}
     >
       {children}
     </p>
@@ -125,29 +117,28 @@ export function ContentRemoteImage({
   if (!value.src || !value.width || !value.height) return null;
 
   return (
-    <ProjectMediaFrame>
-      <figure className="w-full">
-        {/* eslint-disable-next-line @next/next/no-img-element -- remote CDN / Sanity */}
-        <img
-          src={value.src}
-          alt={value.alt ?? ""}
-          width={value.width}
-          height={value.height}
-          loading={priority ? "eager" : "lazy"}
-          fetchPriority={priority ? "high" : undefined}
-          decoding="async"
-          className="mx-auto h-auto w-full max-w-full object-contain"
-          draggable={false}
-        />
-        {value.caption ? (
-          <figcaption
-            className={`mt-4 text-center text-[0.75rem] leading-relaxed text-neutral-400 ${projectTextWrap}`}
-          >
-            {value.caption}
-          </figcaption>
-        ) : null}
-      </figure>
-    </ProjectMediaFrame>
+    <figure className={projectMediaWrap}>
+      {/* eslint-disable-next-line @next/next/no-img-element -- remote CDN / Sanity */}
+      <img
+        src={value.src}
+        alt={value.alt ?? ""}
+        width={value.width}
+        height={value.height}
+        sizes="(max-width: 768px) 100vw, 48rem"
+        loading={priority ? "eager" : "lazy"}
+        fetchPriority={priority ? "high" : undefined}
+        decoding="async"
+        className="mx-auto block h-auto max-h-[min(85vh,920px)] w-full max-w-full object-contain"
+        draggable={false}
+      />
+      {value.caption ? (
+        <figcaption
+          className={`mt-4 text-left text-[0.7rem] leading-relaxed text-neutral-400 ${projectTextWrap}`}
+        >
+          {value.caption}
+        </figcaption>
+      ) : null}
+    </figure>
   );
 }
 
@@ -157,47 +148,43 @@ export function GreyField({ value }: { value: ContentGreyFieldBlock }) {
   const pct = value.widthPct ?? 100;
 
   return (
-    <ProjectMediaFrame>
-      <figure
-        className="w-full"
-        style={pct < 100 ? { width: `${pct}%`, marginLeft: "auto", marginRight: "auto" } : undefined}
-      >
-        <div
-          className="mx-auto w-full max-w-full rounded-[0.5px] shadow-[inset_0_0_0_1px_rgba(0,0,0,0.04)]"
-          style={{
-            aspectRatio: `${w} / ${h}`,
-            background: `linear-gradient(142deg, ${value.from} 0%, ${value.to} 100%)`,
-          }}
-          aria-hidden
-        />
-        {value.caption ? (
-          <figcaption
-            className={`mt-4 text-center text-[0.75rem] leading-relaxed text-neutral-400 ${projectTextWrap}`}
-          >
-            {value.caption}
-          </figcaption>
-        ) : null}
-      </figure>
-    </ProjectMediaFrame>
+    <figure
+      className={projectMediaWrap}
+      style={pct < 100 ? { width: `${pct}%`, marginLeft: "auto", marginRight: "auto" } : undefined}
+    >
+      <div
+        className="mx-auto w-full max-w-full rounded-[0.5px] shadow-[inset_0_0_0_1px_rgba(0,0,0,0.04)]"
+        style={{
+          aspectRatio: `${w} / ${h}`,
+          background: `linear-gradient(142deg, ${value.from} 0%, ${value.to} 100%)`,
+        }}
+        aria-hidden
+      />
+      {value.caption ? (
+        <figcaption
+          className={`mt-4 text-left text-[0.7rem] leading-relaxed text-neutral-400 ${projectTextWrap}`}
+        >
+          {value.caption}
+        </figcaption>
+      ) : null}
+    </figure>
   );
 }
 
 function ContentVideo({ value }: { value: ContentVideoBlock }) {
   if (!value.src) return null;
   return (
-    <ProjectMediaFrame>
-      <figure className="w-full">
-        <video
-          className="mx-auto max-h-[min(72vh,720px)] w-full max-w-full rounded-[0.5px] shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]"
-          controls
-          playsInline
-          preload="metadata"
-          poster={value.poster}
-        >
-          <source src={value.src} type="video/mp4" />
-        </video>
-      </figure>
-    </ProjectMediaFrame>
+    <figure className={projectMediaWrap}>
+      <video
+        className="mx-auto max-h-[min(72vh,720px)] w-full max-w-full rounded-[0.5px] shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)] object-contain"
+        controls
+        playsInline
+        preload="metadata"
+        poster={value.poster}
+      >
+        <source src={value.src} type="video/mp4" />
+      </video>
+    </figure>
   );
 }
 
@@ -206,7 +193,7 @@ function ContentAudio({ value }: { value: ContentAudioBlock }) {
   return (
     <figure className={projectTextWrap}>
       {value.title ? (
-        <figcaption className="mb-3 text-center text-[0.65rem] uppercase tracking-[0.18em] text-neutral-400">
+        <figcaption className="mb-3 text-left text-[0.65rem] uppercase tracking-[0.18em] text-neutral-400">
           {value.title}
         </figcaption>
       ) : null}
@@ -303,7 +290,7 @@ export function ProjectBody({ content }: { content: ProjectContentBlock[] | null
   return (
     <div className="flex flex-col items-center gap-16 md:gap-[5.5rem]">
       {initial.length > 0 ? (
-        <section aria-label="Statement" className="w-full text-center">
+        <section aria-label="Statement" className="w-full text-left">
           <PortableText value={initial} components={textComponents} />
         </section>
       ) : null}
