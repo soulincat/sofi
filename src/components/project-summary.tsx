@@ -31,10 +31,12 @@ export function ProjectSummary({ text }: { text: string }) {
   const specOneLine = specParts.join(", ");
 
   return (
-    <div className="mt-10 space-y-6 text-[0.75rem] leading-relaxed text-neutral-500">
-      {specOneLine ? <p className="text-left font-normal">{specOneLine}</p> : null}
+    <div className="mt-10 w-full space-y-6 text-[0.75rem] leading-relaxed text-neutral-500">
+      {specOneLine ? (
+        <p className="w-full text-left font-normal">{specOneLine}</p>
+      ) : null}
       {rest.map((block, i) => (
-        <p key={i} className="whitespace-pre-wrap text-left">
+        <p key={i} className="w-full whitespace-pre-wrap text-left">
           {block}
         </p>
       ))}

@@ -15,6 +15,10 @@ export const projectDetailTextColumnClass =
 
 const projectTextWrap = projectDetailTextColumnClass;
 
+/** Inner text blocks fill the text column wrapper (same width as header spec line). */
+const textBlockClass =
+  "w-full text-[0.75rem] leading-[1.75] tracking-[0.01em] text-neutral-500";
+
 /** Wider than text; capped below screen width (no viewport bleed). */
 const projectMediaWrap = "mx-auto w-full min-w-0 max-w-3xl md:max-w-4xl";
 
@@ -32,39 +36,25 @@ function findFirstImageKey(blocks: ProjectContentBlock[] | null): string | undef
 const textComponents: PortableTextComponents = {
   block: {
     normal: ({ children }) => (
-      <p
-        className={`mb-0 text-[0.75rem] leading-[1.75] tracking-[0.01em] text-neutral-500 ${projectTextWrap}`}
-      >
-        {children}
-      </p>
+      <p className={`mb-0 ${textBlockClass}`}>{children}</p>
     ),
     h2: ({ children }) => (
-      <h2
-        className={`mb-0 mt-0 text-left text-[0.65rem] font-normal uppercase tracking-[0.2em] text-neutral-400 first:mt-0 ${projectTextWrap}`}
-      >
+      <h2 className="mb-0 mt-0 text-left text-[0.65rem] font-normal uppercase tracking-[0.2em] text-neutral-400 first:mt-0">
         {children}
       </h2>
     ),
     blockquote: ({ children }) => (
-      <blockquote
-        className={`border-0 text-[0.75rem] leading-[1.75] text-neutral-500 ${projectTextWrap}`}
-      >
-        {children}
-      </blockquote>
+      <blockquote className={`border-0 ${textBlockClass}`}>{children}</blockquote>
     ),
   },
   list: {
     bullet: ({ children }) => (
-      <ul
-        className={`mb-0 list-disc space-y-1 pl-5 text-left text-[0.75rem] leading-relaxed text-neutral-500 sm:pl-6 ${projectTextWrap}`}
-      >
+      <ul className="mb-0 w-full list-disc space-y-1 pl-5 text-left text-[0.75rem] leading-relaxed text-neutral-500 sm:pl-6">
         {children}
       </ul>
     ),
     number: ({ children }) => (
-      <ol
-        className={`mb-0 list-decimal space-y-1 pl-5 text-left text-[0.75rem] leading-relaxed text-neutral-500 sm:pl-6 ${projectTextWrap}`}
-      >
+      <ol className="mb-0 w-full list-decimal space-y-1 pl-5 text-left text-[0.75rem] leading-relaxed text-neutral-500 sm:pl-6">
         {children}
       </ol>
     ),
@@ -92,11 +82,7 @@ const textComponents: PortableTextComponents = {
     em: ({ children }) => <em>{children}</em>,
   },
   unknownBlockStyle: ({ children }) => (
-    <p
-      className={`mb-0 text-[0.75rem] leading-[1.75] tracking-[0.01em] text-neutral-500 ${projectTextWrap}`}
-    >
-      {children}
-    </p>
+    <p className={`mb-0 ${textBlockClass}`}>{children}</p>
   ),
 };
 
@@ -253,7 +239,11 @@ function renderContentTail(
         i += 1;
       }
       const gk = group[0]?._key ?? `pt-${i}`;
-      out.push(<PortableText key={gk} value={group} components={textComponents} />);
+      out.push(
+        <div key={gk} className={`${projectDetailTextColumnClass} w-full`}>
+          <PortableText value={group} components={textComponents} />
+        </div>,
+      );
       continue;
     }
 
@@ -288,9 +278,9 @@ export function ProjectBody({ content }: { content: ProjectContentBlock[] | null
   const { initial, tail } = splitInitialPortableBlocks(content);
 
   return (
-    <div className="flex flex-col items-center gap-16 md:gap-[5.5rem]">
+    <div className="flex w-full flex-col gap-16 md:gap-[5.5rem]">
       {initial.length > 0 ? (
-        <section aria-label="Statement" className="w-full text-left">
+        <section aria-label="Statement" className={`${projectDetailTextColumnClass} w-full`}>
           <PortableText value={initial} components={textComponents} />
         </section>
       ) : null}
