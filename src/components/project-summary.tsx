@@ -8,6 +8,19 @@ function splitSpecSegments(raw: string): string[] {
   return t.split(",").map((s) => s.trim()).filter(Boolean);
 }
 
+/** First paragraph → spec line; later paragraphs → body copy. */
+export function splitSummarySpecAndRest(text: string): {
+  specLine: string | null;
+  restParagraphs: string[];
+} {
+  const blocks = text.split(/\n\n+/);
+  const firstRaw = (blocks[0] ?? "").trim();
+  const rest = blocks.slice(1).map((b) => b.trim()).filter(Boolean);
+  const specParts = splitSpecSegments(firstRaw);
+  const specLine = specParts.length ? specParts.join(", ") : null;
+  return { specLine, restParagraphs: rest };
+}
+
 /** All segments in a single flowing line (comma-separated). */
 export function CommaLineBreaks({
   text,
@@ -23,21 +36,16 @@ export function CommaLineBreaks({
   );
 }
 
-/** First block: one line of spec (joined). Body: pre-wrap paragraphs, left-aligned. */
+/** Full description in one column (e.g. editor preview). Prefer splitSummarySpecAndRest + layout on work page. */
 export function ProjectSummary({ text }: { text: string }) {
-  const blocks = text.split(/\n\n+/);
-  const firstRaw = (blocks[0] ?? "").trim();
-  const rest = blocks.slice(1).map((b) => b.trim()).filter(Boolean);
-
-  const specParts = splitSpecSegments(firstRaw);
-  const specOneLine = specParts.join(", ");
+  const { specLine, restParagraphs } = splitSummarySpecAndRest(text);
 
   return (
     <div className="mt-10 w-full min-w-0 max-w-full space-y-6 text-[0.75rem] leading-relaxed text-neutral-500">
-      {specOneLine ? (
-        <p className="w-full min-w-0 max-w-full break-words text-left font-normal">{specOneLine}</p>
+      {specLine ? (
+        <p className="w-full min-w-0 max-w-full break-words text-left font-normal">{specLine}</p>
       ) : null}
-      {rest.map((block, i) => (
+      {restParagraphs.map((block, i) => (
         <p
           key={i}
           className="w-full min-w-0 max-w-full whitespace-pre-wrap break-words text-left"

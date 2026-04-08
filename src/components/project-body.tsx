@@ -1,4 +1,4 @@
-import { PortableText, type PortableTextComponents } from "@portabletext/react";
+import type { PortableTextComponents } from "@portabletext/react";
 import type { PortableTextBlock } from "@portabletext/types";
 import type {
   ContentAudioBlock,
@@ -39,8 +39,8 @@ function isMediaBlock(b: ProjectContentBlock): boolean {
   );
 }
 
-/** File-backed content is […intro blocks, …media]. Reorder to: first media, all text, rest of media. */
-function partitionContent(content: ProjectContentBlock[]): {
+/** Split portable blocks vs media (file-backed order is […intro, …media]). */
+export function partitionContent(content: ProjectContentBlock[]): {
   blocks: PortableTextBlock[];
   media: ProjectContentBlock[];
 } {
@@ -53,14 +53,15 @@ function partitionContent(content: ProjectContentBlock[]): {
   return { blocks, media };
 }
 
-function mediaItemKey(item: ProjectContentBlock, idx: number): string {
+export function mediaItemKey(item: ProjectContentBlock, idx: number): string {
   if (item && typeof item === "object" && "_key" in item && (item as { _key?: string })._key) {
     return String((item as { _key: string })._key);
   }
   return `media-${idx}`;
 }
 
-const textComponents: PortableTextComponents = {
+/** Portable Text renderers for project detail (work page + gallery). */
+export const projectDetailTextComponents: PortableTextComponents = {
   block: {
     normal: ({ children }) => (
       <p className={`mb-0 ${textBlockClass}`}>{children}</p>
@@ -215,7 +216,7 @@ function ContentAudio({ value }: { value: ContentAudioBlock }) {
   );
 }
 
-function MediaBlock({
+export function MediaBlock({
   item,
   imagePriority,
 }: {
@@ -244,36 +245,3 @@ function MediaBlock({
   return null;
 }
 
-export function ProjectBody({ content }: { content: ProjectContentBlock[] | null }) {
-  if (!content?.length) return null;
-
-  const { blocks, media } = partitionContent(content);
-  const firstMedia = media[0];
-  const restMedia = media.slice(1);
-  const firstIsRemote =
-    firstMedia && (firstMedia as { _type: string })._type === "remoteImage";
-
-  return (
-    <div className="flex w-full flex-col gap-16 md:gap-[5.5rem]">
-      {firstMedia ? (
-        <MediaBlock
-          key={mediaItemKey(firstMedia, 0)}
-          item={firstMedia}
-          imagePriority={Boolean(firstIsRemote)}
-        />
-      ) : null}
-      {blocks.length > 0 ? (
-        <section aria-label="Project text" className={`${projectDetailTextColumnClass} w-full`}>
-          <PortableText value={blocks} components={textComponents} />
-        </section>
-      ) : null}
-      {restMedia.map((item, idx) => (
-        <MediaBlock
-          key={mediaItemKey(item, idx + 1)}
-          item={item}
-          imagePriority={false}
-        />
-      ))}
-    </div>
-  );
-}

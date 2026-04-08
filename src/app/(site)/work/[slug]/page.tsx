@@ -1,10 +1,17 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { PortableText } from "@portabletext/react";
 
 import { EditLogin } from "@/components/editor/edit-login";
-import { ProjectBody, projectDetailTextColumnClass } from "@/components/project-body";
+import {
+  MediaBlock,
+  mediaItemKey,
+  partitionContent,
+  projectDetailTextColumnClass,
+  projectDetailTextComponents,
+} from "@/components/project-body";
 import { ProjectEditor } from "@/components/editor/project-editor";
-import { CommaLineBreaks, ProjectSummary } from "@/components/project-summary";
+import { CommaLineBreaks, splitSummarySpecAndRest } from "@/components/project-summary";
 import { getProjectBySlug, getProjectSlugsForStatic } from "@/data/projects";
 import { hasEditSession } from "@/lib/edit-auth";
 import { siteDescription, siteTitle } from "@/lib/site";
@@ -44,6 +51,17 @@ export default async function WorkPage(props: Props) {
   }
 
   const content = project.content as ProjectContentBlock[] | null;
+
+  const { specLine, restParagraphs } =
+    project.summary?.trim() ? splitSummarySpecAndRest(project.summary) : { specLine: null, restParagraphs: [] };
+  const { blocks, media } = partitionContent(content ?? []);
+  const firstMedia = media[0];
+  const restMedia = media.slice(1);
+  const firstIsRemote =
+    firstMedia && (firstMedia as { _type: string })._type === "remoteImage";
+  const hasTextAfterHero = restParagraphs.length > 0 || blocks.length > 0;
+  const hasMoreGallery = restMedia.length > 0;
+
   const editorMedia = (content ?? [])
     .filter(
       (b): b is Extract<ProjectContentBlock, { _type: "remoteImage" | "embeddedVideo" | "embeddedAudio" }> =>
@@ -117,11 +135,56 @@ export default async function WorkPage(props: Props) {
               {project.year}
             </p>
           ) : null}
-          {project.summary ? <ProjectSummary text={project.summary} /> : null}
+          {specLine ? (
+            <p className="mt-10 w-full min-w-0 max-w-full break-words text-left text-[0.75rem] leading-relaxed text-neutral-500">
+              {specLine}
+            </p>
+          ) : null}
         </div>
       </header>
 
-      <ProjectBody content={content} />
+      {firstMedia ? (
+        <div
+          className={hasTextAfterHero || hasMoreGallery ? "mb-16 md:mb-24" : undefined}
+        >
+          <MediaBlock
+            key={mediaItemKey(firstMedia, 0)}
+            item={firstMedia}
+            imagePriority={Boolean(firstIsRemote)}
+          />
+        </div>
+      ) : null}
+
+      {hasTextAfterHero ? (
+        <div
+          className={`${projectDetailTextColumnClass} mb-16 space-y-6 text-[0.75rem] leading-relaxed text-neutral-500 md:mb-24`}
+          aria-label="Project description"
+        >
+          {restParagraphs.map((block, i) => (
+            <p
+              key={i}
+              className="w-full min-w-0 max-w-full whitespace-pre-wrap break-words text-left"
+            >
+              {block}
+            </p>
+          ))}
+          {blocks.length > 0 ? (
+            <PortableText value={blocks} components={projectDetailTextComponents} />
+          ) : null}
+        </div>
+      ) : null}
+
+      {hasMoreGallery ? (
+        <div className="flex w-full flex-col gap-16 md:gap-[5.5rem]" aria-label="Project gallery">
+          {restMedia.map((item, idx) => (
+            <MediaBlock
+              key={mediaItemKey(item, idx + 1)}
+              item={item}
+              imagePriority={false}
+            />
+          ))}
+        </div>
+      ) : null}
     </article>
   );
 }
