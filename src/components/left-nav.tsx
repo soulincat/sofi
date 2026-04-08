@@ -13,7 +13,7 @@ export function SiteMark() {
   return (
     <Link
       href="/"
-      className="pointer-events-auto fixed left-3 top-6 z-50 hidden text-[0.625rem] font-normal uppercase leading-none tracking-[0.2em] text-neutral-900 transition-opacity hover:opacity-55 md:block"
+      className="pointer-events-auto fixed left-3 top-6 z-50 hidden text-xs font-normal uppercase leading-none tracking-[0.2em] text-neutral-900 transition-opacity hover:opacity-55 md:block md:text-sm"
     >
       <span className="whitespace-nowrap">{siteTitle}</span>
     </Link>

@@ -9,11 +9,22 @@ import type {
   ProjectContentBlock,
 } from "@/types/project";
 
-/** Narrower column than images on md+; images use `projectMediaWrap`. */
-const projectTextWrap = "mx-auto w-full max-w-xl md:max-w-2xl px-1 sm:px-0";
-/** Slightly wider than text on small screens; much wider on desktop. */
-const projectMediaWrap =
-  "mx-auto w-full max-w-2xl md:max-w-[min(92vw,72rem)] lg:max-w-[min(94vw,80rem)]";
+/** Narrow text column (body + captions). */
+export const projectDetailTextColumnClass =
+  "mx-auto w-full max-w-lg md:max-w-xl px-1 sm:px-0";
+
+const projectTextWrap = projectDetailTextColumnClass;
+
+/** Full-bleed frame so media can exceed text width and use most of the viewport. */
+function ProjectMediaFrame({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2">
+      <div className="mx-auto w-full max-w-[min(96vw,90rem)] px-1 sm:px-2 md:px-8">
+        {children}
+      </div>
+    </div>
+  );
+}
 
 function findFirstImageKey(blocks: ProjectContentBlock[] | null): string | undefined {
   if (!blocks) return undefined;
@@ -114,27 +125,29 @@ export function ContentRemoteImage({
   if (!value.src || !value.width || !value.height) return null;
 
   return (
-    <figure className={projectMediaWrap}>
-      {/* eslint-disable-next-line @next/next/no-img-element -- remote CDN / Sanity */}
-      <img
-        src={value.src}
-        alt={value.alt ?? ""}
-        width={value.width}
-        height={value.height}
-        loading={priority ? "eager" : "lazy"}
-        fetchPriority={priority ? "high" : undefined}
-        decoding="async"
-        className="mx-auto h-auto w-auto max-w-full"
-        draggable={false}
-      />
-      {value.caption ? (
-        <figcaption
-          className={`mt-4 text-center text-[0.75rem] leading-relaxed text-neutral-400 ${projectTextWrap}`}
-        >
-          {value.caption}
-        </figcaption>
-      ) : null}
-    </figure>
+    <ProjectMediaFrame>
+      <figure className="w-full">
+        {/* eslint-disable-next-line @next/next/no-img-element -- remote CDN / Sanity */}
+        <img
+          src={value.src}
+          alt={value.alt ?? ""}
+          width={value.width}
+          height={value.height}
+          loading={priority ? "eager" : "lazy"}
+          fetchPriority={priority ? "high" : undefined}
+          decoding="async"
+          className="mx-auto h-auto w-full max-w-full object-contain"
+          draggable={false}
+        />
+        {value.caption ? (
+          <figcaption
+            className={`mt-4 text-center text-[0.75rem] leading-relaxed text-neutral-400 ${projectTextWrap}`}
+          >
+            {value.caption}
+          </figcaption>
+        ) : null}
+      </figure>
+    </ProjectMediaFrame>
   );
 }
 
@@ -144,43 +157,47 @@ export function GreyField({ value }: { value: ContentGreyFieldBlock }) {
   const pct = value.widthPct ?? 100;
 
   return (
-    <figure
-      className={projectMediaWrap}
-      style={pct < 100 ? { width: `${pct}%` } : undefined}
-    >
-      <div
-        className="mx-auto w-full max-w-full rounded-[0.5px] shadow-[inset_0_0_0_1px_rgba(0,0,0,0.04)]"
-        style={{
-          aspectRatio: `${w} / ${h}`,
-          background: `linear-gradient(142deg, ${value.from} 0%, ${value.to} 100%)`,
-        }}
-        aria-hidden
-      />
-      {value.caption ? (
-        <figcaption
-          className={`mt-4 text-center text-[0.75rem] leading-relaxed text-neutral-400 ${projectTextWrap}`}
-        >
-          {value.caption}
-        </figcaption>
-      ) : null}
-    </figure>
+    <ProjectMediaFrame>
+      <figure
+        className="w-full"
+        style={pct < 100 ? { width: `${pct}%`, marginLeft: "auto", marginRight: "auto" } : undefined}
+      >
+        <div
+          className="mx-auto w-full max-w-full rounded-[0.5px] shadow-[inset_0_0_0_1px_rgba(0,0,0,0.04)]"
+          style={{
+            aspectRatio: `${w} / ${h}`,
+            background: `linear-gradient(142deg, ${value.from} 0%, ${value.to} 100%)`,
+          }}
+          aria-hidden
+        />
+        {value.caption ? (
+          <figcaption
+            className={`mt-4 text-center text-[0.75rem] leading-relaxed text-neutral-400 ${projectTextWrap}`}
+          >
+            {value.caption}
+          </figcaption>
+        ) : null}
+      </figure>
+    </ProjectMediaFrame>
   );
 }
 
 function ContentVideo({ value }: { value: ContentVideoBlock }) {
   if (!value.src) return null;
   return (
-    <figure className={projectMediaWrap}>
-      <video
-        className="mx-auto max-h-[min(72vh,720px)] w-auto max-w-full rounded-[0.5px] shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]"
-        controls
-        playsInline
-        preload="metadata"
-        poster={value.poster}
-      >
-        <source src={value.src} type="video/mp4" />
-      </video>
-    </figure>
+    <ProjectMediaFrame>
+      <figure className="w-full">
+        <video
+          className="mx-auto max-h-[min(72vh,720px)] w-full max-w-full rounded-[0.5px] shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]"
+          controls
+          playsInline
+          preload="metadata"
+          poster={value.poster}
+        >
+          <source src={value.src} type="video/mp4" />
+        </video>
+      </figure>
+    </ProjectMediaFrame>
   );
 }
 

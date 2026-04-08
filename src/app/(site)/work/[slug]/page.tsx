@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { EditLogin } from "@/components/editor/edit-login";
-import { ProjectBody } from "@/components/project-body";
+import { ProjectBody, projectDetailTextColumnClass } from "@/components/project-body";
 import { ProjectEditor } from "@/components/editor/project-editor";
 import { CommaLineBreaks, ProjectSummary } from "@/components/project-summary";
 import { getProjectBySlug, getProjectSlugsForStatic } from "@/data/projects";
@@ -102,7 +102,7 @@ export default async function WorkPage(props: Props) {
         />
       ) : null}
       <header className="mb-16 md:mb-24">
-        <div className="mx-auto w-full max-w-xl md:max-w-2xl px-1 sm:px-0">
+        <div className={projectDetailTextColumnClass}>
           <h1 className="text-lg font-normal leading-snug tracking-[0.04em] text-neutral-900 md:text-xl md:tracking-[0.05em] lg:text-2xl lg:tracking-[0.06em]">
             {project.title}
           </h1>

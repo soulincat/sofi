@@ -29,7 +29,7 @@ function MobileNavInner() {
       <header className="fixed left-0 right-0 top-0 z-40 flex items-center justify-between border-b border-neutral-200/80 bg-[var(--background)]/90 px-5 py-4 backdrop-blur-sm md:hidden">
         <Link
           href="/"
-          className="shrink-0 whitespace-nowrap text-[0.8125rem] tracking-[0.06em] text-neutral-900 sm:text-[0.9375rem] sm:tracking-[0.02em]"
+          className="shrink-0 whitespace-nowrap text-base tracking-[0.06em] text-neutral-900 sm:text-lg sm:tracking-[0.02em]"
         >
           {siteTitle}
         </Link>
